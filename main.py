@@ -1,5 +1,5 @@
-import tkinter.messagebox
 from tkinter import *
+import tkinter.messagebox
 import numpy as np
 
 board_size = 600
@@ -108,7 +108,7 @@ class Tic_Tac_Toe():
         if self.check_gameover():
             self.display_gameover()
 
-    def minimax(self, board_status, depth, isMax):
+    def minimax(self, board_status, depth, isMax, alpha, beta):
         if self.check_winner('X', board_status):
             return -10
 
@@ -125,8 +125,11 @@ class Tic_Tac_Toe():
                 for j in range(3):
                     if (board_status[i][j] == 0):
                         board_status[i][j] = 1
-                        best = max(best, self.minimax(board_status, depth + 1, not isMax))
+                        best = max(best, self.minimax(board_status, depth + 1, not isMax, alpha, beta))
+                        alpha = max(alpha, best)
                         board_status[i][j] = 0
+                        if (beta <= alpha):
+                            break
             return best
         # Minimiser
         else:
@@ -136,8 +139,11 @@ class Tic_Tac_Toe():
                 for j in range(3):
                     if (board_status[i][j] == 0):
                         board_status[i][j] = -1
-                        best = min(best, self.minimax(board_status, depth + 1, not isMax))
+                        best = min(best, self.minimax(board_status, depth + 1, not isMax, alpha, beta))
+                        beta = min(beta, best)
                         board_status[i][j] = 0
+                        if (beta <= alpha):
+                            break
             return best
 
     def find_best_move(self, board_status):
@@ -147,7 +153,7 @@ class Tic_Tac_Toe():
             for j in range(3):
                 if (board_status[i][j] == 0):
                     board_status[i][j] = 1
-                    move_value = self.minimax(board_status, 0, False)
+                    move_value = self.minimax(board_status, 0, False, -1000, 1000)
                     # Undo the move
                     board_status[i][j] = 0
                     if (move_value > best_value):
